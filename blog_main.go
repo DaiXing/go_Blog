@@ -9,5 +9,4 @@ func main() {
 	blogx.DbInit()
 
 	blogx.WebInit()
-
 }
