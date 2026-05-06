@@ -1,12 +1,35 @@
 package blogx
 
 import (
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"strings"
 )
+
+func CheckErr(title string, err2 error) {
+	if err2 != nil {
+		panic(title + " error : " + err2.Error())
+	}
+}
+
+func ToJsonString(anyx any) string {
+	bytex, err := json.Marshal(anyx)
+	CheckErr("转json", err)
+	return string(bytex)
+}
+
+// 密码加个密。
+func PasswordEncode(password string) string {
+	salt := "86571JFJWELSA" // 加盐。
+	tmp := password + salt
+	bytex := sha256.Sum256([]byte(tmp))                // 定长的字节数组
+	str := base64.StdEncoding.EncodeToString(bytex[:]) // 转base64
+	return str
+}
 
 // post 发送json，接收json
 func PostJson[RespBean any](
@@ -73,19 +96,20 @@ func GetJson[RespBean any](url string) *RespBean {
 	resp, err := http.Get(url)
 	CheckErr("http.Get", err)
 
+	bufx := "GetJson >> "
+	bufx += "\n url = " + url
+	defer func() {
+		bufx += "\n"
+		fmt.Println(bufx)
+	}()
+
 	bytex, err2 := io.ReadAll(resp.Body)
 	CheckErr("ReadAll", err2)
+	bufx += "\n 响应json = " + string(bytex)
 
 	var respx RespBean
 	err3 := json.Unmarshal(bytex, &respx)
 	CheckErr("Unmarshal", err3)
-	respJson := ToJsonString(&respx)
-
-	bufx := "GetJson >> "
-	bufx += "\n url = " + url
-	bufx += "\n 响应json = " + respJson
-	bufx += "\n"
-	fmt.Println(bufx)
-
+	// respJson := ToJsonString(&respx)
 	return &respx
 }

@@ -2,9 +2,15 @@
 datasource: 
   driver: sqlite
   connection: localhost
-  config: 
-    timeout: 3
-    retry: 5
+  connTimeout: 3
+
+init:
+# 先插入一批行
+  dbInsertRowsEnable: true
+# 把表先删除
+  dbDropTableEnable: true
+
+
 
 
 

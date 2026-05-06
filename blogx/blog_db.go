@@ -16,20 +16,31 @@ func DbInit() {
 	Logger.Info("DB 初始化完成")
 
 	DbReloadTable()
-	DbInsertRows()
+
+	// 先插入一些数据。
+	if ConfigParams.Init.DbInsertRowsEnable {
+		DbInsertRows()
+	}
+
 	DbQueryRows()
 }
 
 // 重建表。
 func DbReloadTable() {
-	err1 := Db.Migrator().DropTable(&User{}, &Post{}, &Comment{})
-	CheckErr("DropTable", err1)
+	// 先删除表。
+	if ConfigParams.Init.DbDropTableEnable {
+		err1 := Db.Migrator().DropTable(&User{}, &Post{}, &Comment{})
+		CheckErr("DropTable", err1)
+	}
 
+	// 建表
 	err2 := Db.Migrator().CreateTable(&User{}, &Post{}, &Comment{})
 	CheckErr("CreateTable", err2)
 
+	// 查表
 	tableNames, err := Db.Migrator().GetTables()
 	CheckErr("db.Migrator().GetTables()", err)
+
 	Logger.Info("DB 重建表完成 ", "tableNames", tableNames)
 }
 
@@ -113,7 +124,8 @@ func DbInsertRows() {
 	}
 	err3 := Db.Create(comments).Error
 	CheckErr("db.Create(comments)", err3)
-	Logger.Info("DB insert rows done ")
+
+	Logger.Info("DB 插入行数据，完成 ")
 }
 
 // 查询全部行

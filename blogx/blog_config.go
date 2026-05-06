@@ -1,9 +1,6 @@
 package blogx
 
 import (
-	"crypto/sha256"
-	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"log/slog"
 	"os"
@@ -14,6 +11,10 @@ import (
 // 日志。
 var Logger *slog.Logger
 
+// 参数。
+var ConfigParams ConfigParamsPo
+
+// 配置日志。
 func ConfigLogger() {
 	// 配置 JSON 格式，开启 caller 信息便于定位行号
 	opts := &slog.HandlerOptions{
@@ -44,27 +45,25 @@ func ConfigLoadParams() {
 	keys := viper.AllKeys()
 	for _, k := range keys {
 		v := viper.GetString(k)
-		fmt.Printf("  key= %s value= %s \n", k, v)
+		fmt.Printf("  key= %-30s value= %-30s \n", k, v)
 	}
+
+	// 转对象。
+	err3 := viper.Unmarshal(&ConfigParams)
+	CheckErr("viper.Unmarshal", err3)
+	fmt.Println("viper 对象参数： ", ToJsonString(&ConfigParams))
 }
 
-func CheckErr(title string, err2 error) {
-	if err2 != nil {
-		panic(title + " error : " + err2.Error())
-	}
+type ConfigParamsPo struct {
+	Datasource ConfigDataSourcePo `mapstructure:"datasource"`
+	Init       ConfigInitPo       `mapstructure:"init"`
 }
-
-func ToJsonString(anyx any) string {
-	bytex, err := json.Marshal(anyx)
-	CheckErr("转json", err)
-	return string(bytex)
+type ConfigDataSourcePo struct {
+	Driver      string `mapstructure:"driver"`
+	Connection  string `mapstructure:"connection"`
+	ConnTimeout uint   `mapstructure:"connTimeout"`
 }
-
-// 密码加个密。
-func PasswordEncode(password string) string {
-	salt := "86571JFJWELSA" // 加盐。
-	tmp := password + salt
-	bytex := sha256.Sum256([]byte(tmp))                // 定长的字节数组
-	str := base64.StdEncoding.EncodeToString(bytex[:]) // 转base64
-	return str
+type ConfigInitPo struct {
+	DbDropTableEnable  bool `mapstructure:"dbDropTableEnable"`
+	DbInsertRowsEnable bool `mapstructure:"dbInsertRowsEnable"`
 }
