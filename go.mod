@@ -1,4 +1,4 @@
-module gitee.com/dx/go_blog
+module github.com/DaiXing/go_Blog
 
 go 1.26.2
 

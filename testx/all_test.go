@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"testing"
 
-	"gitee.com/dx/go_blog/blogx"
+	"github.com/DaiXing/go_Blog/blogx"
 )
 
 // jwt token

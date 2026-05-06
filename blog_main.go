@@ -1,6 +1,6 @@
 package main
 
-import "gitee.com/dx/go_blog/blogx"
+import "github.com/DaiXing/go_Blog/blogx"
 
 func main() {
 	blogx.ConfigLogger()
