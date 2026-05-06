@@ -1,0 +1,91 @@
+package blogx
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"strings"
+)
+
+// post 发送json，接收json
+func PostJson[RespBean any](
+	url string,
+	reqBody any,
+	headers map[string]string,
+) (status int, resp *RespBean) {
+	bufx := "PostJson >> "
+	bufx += "\n url = " + url
+	defer func() { // 最后执行。
+		bufx += "\n"
+		fmt.Println(bufx)
+	}()
+
+	// 转成流。
+	jsonx := ToJsonString(reqBody)
+	bufx += "\n 请求json = " + jsonx
+	bodyx := strings.NewReader(jsonx)
+	reqx, err := http.NewRequest("POST", url, bodyx)
+	CheckErr("NewRequest", err)
+
+	// 设置默认Content-Type
+	reqx.Header.Set("Content-Type", "application/json")
+
+	// 自定义header
+	if headers != nil {
+		for k, v := range headers {
+			reqx.Header.Set(k, v)
+		}
+	}
+
+	respx, err2 := http.DefaultClient.Do(reqx)
+	CheckErr("http.DefaultClient.Do", err2)
+	defer respx.Body.Close()
+
+	statusx := respx.StatusCode
+	bytex, err3 := io.ReadAll(respx.Body)
+	CheckErr("ReadAll", err3)
+	str := string(bytex)
+	bufx += "\n 响应json = " + str
+
+	// json2 := string(bytex)
+	var resp2 RespBean
+	err5 := json.Unmarshal(bytex, &resp2)
+	CheckErr("ReadAll", err5)
+
+	// respJson := ToJsonString(&resp2)
+	return statusx, &resp2
+}
+
+// post 发送json，接收json。带上 token
+func PostJsonWithToken[RespBean any](
+	url string,
+	reqBody any,
+	token string,
+) (status int, resp *RespBean) {
+	headers := make(map[string]string)
+	headers[Key_usertoken] = token
+	return PostJson[RespBean](url, reqBody, headers)
+}
+
+// get 接收json
+func GetJson[RespBean any](url string) *RespBean {
+	resp, err := http.Get(url)
+	CheckErr("http.Get", err)
+
+	bytex, err2 := io.ReadAll(resp.Body)
+	CheckErr("ReadAll", err2)
+
+	var respx RespBean
+	err3 := json.Unmarshal(bytex, &respx)
+	CheckErr("Unmarshal", err3)
+	respJson := ToJsonString(&respx)
+
+	bufx := "GetJson >> "
+	bufx += "\n url = " + url
+	bufx += "\n 响应json = " + respJson
+	bufx += "\n"
+	fmt.Println(bufx)
+
+	return &respx
+}

@@ -1,0 +1,8 @@
+
+datasource: 
+  driver: sqlite
+  connection: localhost
+  config: 
+    timeout: 3
+    retry: 5
+
