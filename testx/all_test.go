@@ -8,6 +8,7 @@ import (
 	"gitee.com/dx/go_blog/blogx"
 )
 
+// jwt token
 var userToken string
 
 func Test1(tt *testing.T) {
