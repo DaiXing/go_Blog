@@ -10,7 +10,7 @@ import (
 var ConfigParams ConfigParamsPo
 
 // 加载配置项。
-func ConfigLoadParams() {
+func LoadParams() {
 	viper.AddConfigPath(".")
 	viper.AddConfigPath("../")
 	viper.SetConfigName("blog")

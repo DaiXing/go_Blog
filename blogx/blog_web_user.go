@@ -1,7 +1,6 @@
 package blogx
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -14,24 +13,24 @@ func handleRegister(ctx *gin.Context) {
 	// 转换参数格式。
 	var req PxRegisterReq
 	err1 := ctx.ShouldBindJSON(&req)
-	CheckErr("ShouldBindJSON", err1)
+	// CheckErr("ShouldBindJSON", err1)
+	if err1 != nil {
+		WebBadRequest(ctx, err1.Error())
+		return
+	}
 
 	// 不能重复。
 	var count int64
 	err2 := Db.Table("users").Where("username = ?", req.Username).Count(&count).Error
 	CheckErr("Count", err2)
 	if count > 0 {
-		ctx.JSON(http.StatusForbidden, &PxBaseResp{
-			Error: "username exists ",
-		})
+		WebForbidden(ctx, "username exists ")
 		return
 	}
 	err3 := Db.Table("users").Where("email = ?", req.Email).Count(&count).Error
 	CheckErr("Count", err3)
 	if count > 0 {
-		ctx.JSON(http.StatusForbidden, &PxBaseResp{
-			Error: "email exists ",
-		})
+		WebForbidden(ctx, "email exists ")
 		return
 	}
 
@@ -53,13 +52,19 @@ func handleLogin(ctx *gin.Context) {
 	// 转换参数格式。
 	var req PxLoginReq
 	err1 := ctx.ShouldBindJSON(&req)
-	CheckErr("ShouldBindJSON", err1)
+	// CheckErr("ShouldBindJSON", err1)
+	if err1 != nil {
+		WebBadRequest(ctx, err1.Error())
+		return
+	}
 
 	if len(req.Username) == 0 {
-		panic("username is empty")
+		WebBadRequest(ctx, "username is empty")
+		return
 	}
 	if len(req.Password) == 0 {
-		panic("password is empty")
+		WebBadRequest(ctx, "password is empty")
+		return
 	}
 
 	// 查用户。
@@ -72,9 +77,7 @@ func handleLogin(ctx *gin.Context) {
 	CheckErr("Find", err3)
 	// 不存在。
 	if user2.ID == 0 {
-		ctx.JSON(http.StatusNotFound, &PxBaseResp{
-			Error: "user not found ",
-		})
+		WebNotFound(ctx, "user not found ")
 		return
 	}
 
@@ -98,7 +101,9 @@ func aopVerifyToken(ctx *gin.Context) {
 	err := Db.Where("id = ?", pxToken.UserId).First(&userx).Error
 	CheckErr("查user", err)
 	if userx.ID == 0 {
-		panic(fmt.Sprintf("user not found : %d ", pxToken.UserId))
+		// panic(fmt.Sprintf("user not found : %d ", pxToken.UserId))
+		WebNotFound(ctx, "user not found ")
+		return
 	}
 
 	// 保存。
@@ -146,7 +151,7 @@ func jwtVerifyToken(token string) *PxJwtToken {
 	// 转为 TokenInfo
 	tokenInfo, ok := token2.Claims.(*PxJwtToken)
 	if !ok {
-		panic("jwt error : ")
+		panic("jwt error ")
 	}
 	return tokenInfo
 }

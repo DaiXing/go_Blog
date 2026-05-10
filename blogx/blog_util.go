@@ -8,6 +8,8 @@ import (
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 func CheckErr(title string, err2 error) {
@@ -112,4 +114,31 @@ func GetJson[RespBean any](url string) *RespBean {
 	CheckErr("Unmarshal", err3)
 	// respJson := ToJsonString(&respx)
 	return &respx
+}
+
+// 返回消息。
+func WebReturnMsg(ctx *gin.Context, status int, msg string) {
+	ctx.JSON(status, &PxBaseResp{
+		Error: msg,
+	})
+}
+
+// 请求错误。
+func WebBadRequest(ctx *gin.Context, errMsg string) {
+	WebReturnMsg(ctx, http.StatusBadRequest, errMsg)
+}
+
+// 禁止。
+func WebForbidden(ctx *gin.Context, errMsg string) {
+	WebReturnMsg(ctx, http.StatusForbidden, errMsg)
+}
+
+// 未认证
+func WebUnauthorized(ctx *gin.Context, errMsg string) {
+	WebReturnMsg(ctx, http.StatusUnauthorized, errMsg)
+}
+
+// 404
+func WebNotFound(ctx *gin.Context, errMsg string) {
+	WebReturnMsg(ctx, http.StatusNotFound, errMsg)
 }

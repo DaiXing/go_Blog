@@ -4,7 +4,8 @@ import "github.com/DaiXing/go_Blog/blogx"
 
 func main() {
 	blogx.InitLogger()
-	blogx.ConfigLoadParams()
+
+	blogx.LoadParams()
 
 	blogx.DbInit()
 

@@ -15,8 +15,13 @@ func handlePostAdd(ctx *gin.Context) {
 	// 转换参数格式。
 	var req PxPostAddReq
 	err1 := ctx.ShouldBindJSON(&req)
-	CheckErr("ShouldBindJSON", err1)
+	// CheckErr("ShouldBindJSON", err1)
+	if err1 != nil {
+		WebBadRequest(ctx, err1.Error())
+		return
+	}
 
+	// 执行后，填充了ID。
 	post1 := Post{
 		UserId:  userid,
 		Title:   req.Title,
@@ -40,7 +45,11 @@ func handlePostUpdate(ctx *gin.Context) {
 	// 转换参数格式。
 	var req PxPostUpdateReq
 	err1 := ctx.ShouldBindJSON(&req)
-	CheckErr("ShouldBindJSON", err1)
+	// CheckErr("ShouldBindJSON", err1)
+	if err1 != nil {
+		WebBadRequest(ctx, err1.Error())
+		return
+	}
 
 	// 先查询。 使用ID
 	var post1 Post
@@ -48,9 +57,7 @@ func handlePostUpdate(ctx *gin.Context) {
 	CheckErr("First", err2)
 
 	if post1.UserId != userid {
-		ctx.JSON(http.StatusNotFound, &PxBaseResp{
-			Error: "post user not match",
-		})
+		WebUnauthorized(ctx, "post and userId not match")
 		return
 	}
 
@@ -90,7 +97,11 @@ func handlePostDelete(ctx *gin.Context) {
 	// 转换参数格式。
 	var req PxPostDeleteReq
 	err1 := ctx.ShouldBindJSON(&req)
-	CheckErr("ShouldBindJSON", err1)
+	// CheckErr("ShouldBindJSON", err1)
+	if err1 != nil {
+		WebBadRequest(ctx, err1.Error())
+		return
+	}
 
 	// 先查询。 使用ID
 	var post1 Post
@@ -98,9 +109,7 @@ func handlePostDelete(ctx *gin.Context) {
 	CheckErr("First", err2)
 
 	if post1.UserId != userid {
-		ctx.JSON(http.StatusNotFound, &PxBaseResp{
-			Error: "post user not match",
-		})
+		WebUnauthorized(ctx, "post and userId not match")
 		return
 	}
 
@@ -108,10 +117,8 @@ func handlePostDelete(ctx *gin.Context) {
 	err3 := Db.Delete(&Post{}, post1.ID).Error
 	CheckErr("Delete", err3)
 
-	ctx.JSON(http.StatusOK, &PxPostUpdateResp{
-		PxBaseResp: PxBaseResp{
-			Desc: "OK handlePostDelete",
-		},
+	ctx.JSON(http.StatusOK, &PxBaseResp{
+		Desc: "OK handlePostDelete",
 	})
 }
 
@@ -119,7 +126,9 @@ func handlePostDelete(ctx *gin.Context) {
 func handlePostQueryOne(ctx *gin.Context) {
 	postId, ok := ctx.GetQuery(Key_postid)
 	if !ok {
-		panic("param postId empty")
+		// panic("param postId empty")
+		WebBadRequest(ctx, "param postId empty")
+		return
 	}
 
 	// 查文章。
@@ -131,9 +140,7 @@ func handlePostQueryOne(ctx *gin.Context) {
 	CheckErr("First", err1)
 
 	if post1.ID == 0 {
-		ctx.JSON(http.StatusNotFound, &PxBaseResp{
-			Error: "post not found",
-		})
+		WebNotFound(ctx, "post not found")
 		return
 	}
 
@@ -146,7 +153,11 @@ func handlePostQueryOne(ctx *gin.Context) {
 func handlePostQueryList(ctx *gin.Context) {
 	var req PxPostQueryListReq
 	err1 := ctx.ShouldBindJSON(&req)
-	CheckErr("ShouldBindJSON", err1)
+	// CheckErr("ShouldBindJSON", err1)
+	if err1 != nil {
+		WebBadRequest(ctx, err1.Error())
+		return
+	}
 
 	// 事务。
 	tx := Db.Model(&Post{}) // 构建查询。

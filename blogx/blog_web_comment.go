@@ -13,7 +13,11 @@ func handleCommentAdd(ctx *gin.Context) {
 	// 转换参数格式。
 	var req PxCommentAddReq
 	err1 := ctx.ShouldBindJSON(&req)
-	CheckErr("ShouldBindJSON", err1)
+	// CheckErr("ShouldBindJSON", err1)
+	if err1 != nil {
+		WebBadRequest(ctx, err1.Error())
+		return
+	}
 
 	// 查文章。
 	var post1 Post
@@ -31,7 +35,7 @@ func handleCommentAdd(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, &PxCommentAddResp{
 		PxBaseResp: PxBaseResp{
-			Desc: "OK",
+			Desc: "OK handleCommentAdd",
 		},
 		CommentAdded: comment1,
 	})
