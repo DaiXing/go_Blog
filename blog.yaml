@@ -5,6 +5,8 @@ datasource:
   connTimeout: 3
 
 init:
+# 端口号。
+  serverPort: 8080
 # 先插入一批行
   dbInsertRowsEnable: true
 # 把表先删除

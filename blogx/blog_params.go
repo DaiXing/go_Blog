@@ -43,6 +43,7 @@ type ConfigDataSourcePo struct {
 	ConnTimeout uint   `mapstructure:"connTimeout"`
 }
 type ConfigInitPo struct {
-	DbDropTableEnable  bool `mapstructure:"dbDropTableEnable"`
-	DbInsertRowsEnable bool `mapstructure:"dbInsertRowsEnable"`
+	ServerPort         int32 `mapstructure:"serverPort"`
+	DbDropTableEnable  bool  `mapstructure:"dbDropTableEnable"`
+	DbInsertRowsEnable bool  `mapstructure:"dbInsertRowsEnable"`
 }
