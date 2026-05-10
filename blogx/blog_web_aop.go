@@ -31,7 +31,7 @@ func aopVerifyToken(ctx *gin.Context) {
 // 记录日志 。
 func aopLogReq(ctx *gin.Context) {
 	startTime := time.Now()
-	uri := ctx.Request.RequestURI
+	uri := ctx.Request.URL.Path
 	method := ctx.Request.Method
 
 	ctx.Next()

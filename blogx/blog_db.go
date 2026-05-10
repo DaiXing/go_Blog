@@ -1,8 +1,6 @@
 package blogx
 
 import (
-	"time"
-
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -46,41 +44,6 @@ func DbReloadTable() {
 	Logger.Info("DB 重建表完成 ", "tableNames", tableNames)
 }
 
-// 复制 gorm.Model 。修改json格式等。
-type BaseModel struct {
-	ID        uint           `gorm:"primarykey" json:"id"`
-	CreatedAt time.Time      `json:"createdAt"`
-	UpdatedAt time.Time      `json:"updatedAt"`
-	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
-}
-type User struct {
-	BaseModel        // 包含几个常用字段
-	Username  string `gorm:"index;size:100;not null;" json:"username"`
-	Password  string `gorm:"size:100;null null;" json:"-"`
-	Email     string `gorm:"uniqueIndex;size:100;not null;" json:"email"`
-	Address   string `gorm:"size:300;" json:"address"`
-}
-
-// 博客文章。
-type Post struct {
-	BaseModel           // 包含几个常用字段
-	Title     string    `gorm:"index;size:100;not null;" json:"title"`
-	Content   string    `gorm:"size:5000;" json:"content"`
-	UserId    uint      `gorm:"index;" json:"userId"`
-	User      User      `json:"user"`
-	Comments  []Comment `json:"comments"` // 评论。
-}
-
-// 文章评论。
-type Comment struct {
-	BaseModel        // 包含几个常用字段
-	Content   string `gorm:"size:300;" json:"content"`
-	UserId    uint   `gorm:"index;" json:"userId"`
-	User      User   `json:"user"`
-	PostId    uint   `gorm:"index;" json:"postId"`
-	Post      Post   `json:"post"`
-}
-
 // 插入一些行。
 func DbInsertRows() {
 	users := []User{
@@ -102,12 +65,12 @@ func DbInsertRows() {
 
 	posts := []Post{
 		{
-			Title:   "文章：伊朗封锁波斯湾",
-			Content: "内容：战争还在继续啊。。。。",
+			Title:   "文章：地中海的春天",
+			Content: "内容：风景非常优美。。。。",
 			UserId:  users[1].ID,
 		}, {
-			Title:   "文章：纽约股市崩盘",
-			Content: "内容：股市崩了3000点。。。。",
+			Title:   "文章：迈阿密的秋天",
+			Content: "内容：海滩非常棒。。。。",
 			UserId:  users[1].ID,
 		},
 	}
@@ -116,17 +79,17 @@ func DbInsertRows() {
 
 	comments := []Comment{
 		{
-			Content: "评论：伊朗太强了！",
+			Content: "评论：去意大利吃橄榄果！",
 			UserId:  posts[0].UserId,
 			PostId:  posts[0].ID,
 		},
 		{
-			Content: "评论：伊朗估计撑不住了！",
+			Content: "评论：去希腊晒太阳！",
 			UserId:  posts[0].UserId,
 			PostId:  posts[0].ID,
 		},
 		{
-			Content: "评论：美国又要股灾了！",
+			Content: "评论：去迈阿密划船！",
 			UserId:  posts[1].UserId,
 			PostId:  posts[1].ID,
 		},
