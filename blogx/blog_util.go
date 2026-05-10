@@ -116,8 +116,8 @@ func GetJson[RespBean any](url string) *RespBean {
 	return &respx
 }
 
-// 返回消息。
-func WebReturnMsg(ctx *gin.Context, status int, msg string) {
+// 返回错误消息。
+func WebReturnErrorMsg(ctx *gin.Context, status int, msg string) {
 	ctx.JSON(status, &PxBaseResp{
 		Error: msg,
 	})
@@ -125,20 +125,20 @@ func WebReturnMsg(ctx *gin.Context, status int, msg string) {
 
 // 请求错误。
 func WebBadRequest(ctx *gin.Context, errMsg string) {
-	WebReturnMsg(ctx, http.StatusBadRequest, errMsg)
+	WebReturnErrorMsg(ctx, http.StatusBadRequest, errMsg)
 }
 
 // 禁止。
 func WebForbidden(ctx *gin.Context, errMsg string) {
-	WebReturnMsg(ctx, http.StatusForbidden, errMsg)
+	WebReturnErrorMsg(ctx, http.StatusForbidden, errMsg)
 }
 
 // 未认证
 func WebUnauthorized(ctx *gin.Context, errMsg string) {
-	WebReturnMsg(ctx, http.StatusUnauthorized, errMsg)
+	WebReturnErrorMsg(ctx, http.StatusUnauthorized, errMsg)
 }
 
 // 404
 func WebNotFound(ctx *gin.Context, errMsg string) {
-	WebReturnMsg(ctx, http.StatusNotFound, errMsg)
+	WebReturnErrorMsg(ctx, http.StatusNotFound, errMsg)
 }
