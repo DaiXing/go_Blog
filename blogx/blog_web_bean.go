@@ -4,13 +4,13 @@ import "github.com/golang-jwt/jwt/v5"
 
 // 实体类。
 type PxRegisterReq struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Email    string `json:"email"`
+	Username string `json:"username" binding:"required,min=5,max=20"`
+	Password string `json:"password" binding:"required,min=8,max=20"`
+	Email    string `json:"email" binding:"required,email"`
 }
 type PxLoginReq struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
 }
 type PxJwtToken struct {
 	jwt.RegisteredClaims        // 继承。
@@ -27,8 +27,8 @@ type PxLoginResp struct {
 	Time       string `json:"time"`
 }
 type PxPostAddReq struct {
-	Title   string `json:"title"`
-	Content string `json:"content"`
+	Title   string `json:"title" binding:"required,min=3"`
+	Content string `json:"content" binding:"required,min=5"`
 }
 type PxPostAddResp struct {
 	PxBaseResp       // 继承。
@@ -36,8 +36,8 @@ type PxPostAddResp struct {
 }
 type PxPostUpdateReq struct {
 	PostId  uint   `json:"postId"`
-	Title   string `json:"title"`
-	Content string `json:"content"`
+	Title   string `json:"title" binding:"required,min=3"`
+	Content string `json:"content" binding:"required,min=5"`
 }
 type PxPostUpdateResp struct {
 	PxBaseResp        // 继承。
@@ -45,11 +45,11 @@ type PxPostUpdateResp struct {
 }
 type PxPostDeleteReq struct {
 	PostId uint   `json:"postId"`
-	Reason string `json:"reason"`
+	Reason string `json:"reason" binding:"required"`
 }
 type PxCommentAddReq struct {
 	PostId  uint   `json:"postId"`
-	Content string `json:"content"`
+	Content string `json:"content" binding:"required,min=5"`
 }
 type PxCommentAddResp struct {
 	PxBaseResp           // 继承。

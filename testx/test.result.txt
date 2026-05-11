@@ -1,0 +1,113 @@
+测试： 注册失败，参数错误
+PostJson >> 
+ url = http://127.0.0.1:8080/register
+ 请求json = {"username":"A","password":"B","email":"C"}
+ 响应json = {"error":"Key: 'PxRegisterReq.Username' Error:Field validation for 'Username' failed on the 'min' tag\nKey: 'PxRegisterReq.Password' Error:Field validation for 'Password' failed on the 'min' tag\nKey: 'PxRegisterReq.Email' Error:Field validation for 'Email' failed on the 'email' tag","desc":""}
+
+测试： 正常注册
+PostJson >> 
+ url = http://127.0.0.1:8080/register
+ 请求json = {"username":"Apple","password":"98j76swPUTGTQFEW","email":"apple@cc.com"}
+ 响应json = {"error":"","desc":"OK"}
+
+测试： 不能重复注册
+PostJson >> 
+ url = http://127.0.0.1:8080/register
+ 请求json = {"username":"Apple","password":"98j76swPUTGTQFEW","email":"apple@cc.com"}
+ 响应json = {"error":"username exists ","desc":""}
+
+测试： 正常登录
+PostJson >> 
+ url = http://127.0.0.1:8080/login
+ 请求json = {"username":"Apple","password":"98j76swPUTGTQFEW"}
+ 响应json = {"error":"","desc":"","token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Nzg1MTcxNjAsIm5iZiI6MTc3ODUwNjM2MCwiaWF0IjoxNzc4NTA2MzYwLCJ1c2VySWQiOjMsInVzZXJuYW1lIjoiQXBwbGUifQ.cu0CptKAW2wjifLTrSq4MVQQUkmxDZXnHaPzXpNpJJo","time":"2026-05-11 21:32:40"}
+
+测试： 错误登录
+PostJson >> 
+ url = http://127.0.0.1:8080/login
+ 请求json = {"username":"不存在的name","password":"不存在的密码"}
+ 响应json = {"error":"user not found ","desc":""}
+
+测试： 发表文章，不带token。
+PostJson >> 
+ url = http://127.0.0.1:8080/post/add
+ 请求json = {"title":"文章1","content":"文章1的内容啊"}
+ 响应json = {"error":"Exception  token empty ","desc":""}
+
+测试： 发表文章，带上错误的token。
+PostJson >> 
+ url = http://127.0.0.1:8080/post/add
+ 请求json = {"title":"文章1","content":"文章1的内容啊"}
+ 响应json = {"error":"Exception  ParseWithClaims error : token is malformed: token contains an invalid number of segments ","desc":""}
+
+测试： 发表文章，带上正确的token。
+PostJson >> 
+ url = http://127.0.0.1:8080/post/add
+ 请求json = {"title":"文章1","content":"文章1的内容啊"}
+ 响应json = {"error":"","desc":"OK handlePostAdd","postAdded":{"id":3,"createdAt":"2026-05-11T21:32:40.156951+08:00","updatedAt":"2026-05-11T21:32:40.156951+08:00","title":"文章1","content":"文章1的内容啊","userId":3,"user":{"id":0,"createdAt":"0001-01-01T00:00:00Z","updatedAt":"0001-01-01T00:00:00Z","username":"","email":"","address":""},"comments":null}}
+
+测试： 修改文章。 不能修改别人的文章。
+PostJson >> 
+ url = http://127.0.0.1:8080/post/update
+ 请求json = {"postId":1,"title":"文章：修改了标题 ","content":"文章：修改了内容"}
+ 响应json = {"error":"post and userId not match","desc":""}
+
+测试： 修改文章。 可以修改自己的文章。
+PostJson >> 
+ url = http://127.0.0.1:8080/post/update
+ 请求json = {"postId":3,"title":"文章：修改了标题 ","content":"文章：修改了内容"}
+ 响应json = {"error":"","desc":"OK handlePostUpdate","postUpdated":{"id":3,"createdAt":"2026-05-11T21:32:40.156951+08:00","updatedAt":"2026-05-11T21:32:40.158563+08:00","title":"文章：修改了标题 ","content":"文章：修改了内容","userId":3,"user":{"id":0,"createdAt":"0001-01-01T00:00:00Z","updatedAt":"0001-01-01T00:00:00Z","username":"","email":"","address":""},"comments":null}}
+
+测试： 删除文章。正常删除。
+PostJson >> 
+ url = http://127.0.0.1:8080/post/delete
+ 请求json = {"postId":3,"reason":"测试删除"}
+ 响应json = {"error":"","desc":"OK handlePostDelete"}
+
+GetJson >> 
+ url = http://127.0.0.1:8080/post/query-one?post_id=3
+ 响应json = {"error":"Exception  First error : record not found ","desc":""}
+
+测试： 删除文章。删除不存在的文章。
+PostJson >> 
+ url = http://127.0.0.1:8080/post/delete
+ 请求json = {"postId":800009,"reason":""}
+ 响应json = {"error":"Key: 'PxPostDeleteReq.Reason' Error:Field validation for 'Reason' failed on the 'required' tag","desc":""}
+
+测试： 先查出一个文章
+PostJson >> 
+ url = http://127.0.0.1:8080/post/query-list
+ 请求json = {"postId":0,"title":"","pageNo":1,"pageSize":1}
+ 响应json = {"error":"","desc":"","posts":[{"id":1,"createdAt":"2026-05-11T21:32:36.450761+08:00","updatedAt":"2026-05-11T21:32:36.450761+08:00","title":"文章：地中海的春天","content":"内容：风景非常优美。。。。","userId":2,"user":{"id":0,"createdAt":"0001-01-01T00:00:00Z","updatedAt":"0001-01-01T00:00:00Z","username":"","email":"","address":""},"comments":null}]}
+
+测试： 评论。 新增评论。
+PostJson >> 
+ url = http://127.0.0.1:8080/comment/add
+ 请求json = {"postId":1,"content":"评论：新来的一个评论"}
+ 响应json = {"error":"","desc":"OK handleCommentAdd","commentAdded":{"id":4,"createdAt":"2026-05-11T21:32:40.16265+08:00","updatedAt":"2026-05-11T21:32:40.16265+08:00","content":"评论：新来的一个评论","userId":3,"user":{"id":0,"createdAt":"0001-01-01T00:00:00Z","updatedAt":"0001-01-01T00:00:00Z","username":"","email":"","address":""},"postId":1,"post":{"id":0,"createdAt":"0001-01-01T00:00:00Z","updatedAt":"0001-01-01T00:00:00Z","title":"","content":"","userId":0,"user":{"id":0,"createdAt":"0001-01-01T00:00:00Z","updatedAt":"0001-01-01T00:00:00Z","username":"","email":"","address":""},"comments":null}}}
+
+测试： 评论。 查看评论。在第一个位置。
+GetJson >> 
+ url = http://127.0.0.1:8080/post/query-one?post_id=1
+ 响应json = {"error":"","desc":"","post":{"id":1,"createdAt":"2026-05-11T21:32:36.450761+08:00","updatedAt":"2026-05-11T21:32:36.450761+08:00","title":"文章：地中海的春天","content":"内容：风景非常优美。。。。","userId":2,"user":{"id":2,"createdAt":"2026-05-11T21:32:36.450122+08:00","updatedAt":"2026-05-11T21:32:36.450122+08:00","username":"Tom","email":"tom@cc.com","address":"Chicago"},"comments":[{"id":4,"createdAt":"2026-05-11T21:32:40.16265+08:00","updatedAt":"2026-05-11T21:32:40.16265+08:00","content":"评论：新来的一个评论","userId":3,"user":{"id":0,"createdAt":"0001-01-01T00:00:00Z","updatedAt":"0001-01-01T00:00:00Z","username":"","email":"","address":""},"postId":1,"post":{"id":0,"createdAt":"0001-01-01T00:00:00Z","updatedAt":"0001-01-01T00:00:00Z","title":"","content":"","userId":0,"user":{"id":0,"createdAt":"0001-01-01T00:00:00Z","updatedAt":"0001-01-01T00:00:00Z","username":"","email":"","address":""},"comments":null}},{"id":2,"createdAt":"2026-05-11T21:32:36.451317+08:00","updatedAt":"2026-05-11T21:32:36.451317+08:00","content":"评论：去希腊晒太阳！","userId":2,"user":{"id":0,"createdAt":"0001-01-01T00:00:00Z","updatedAt":"0001-01-01T00:00:00Z","username":"","email":"","address":""},"postId":1,"post":{"id":0,"createdAt":"0001-01-01T00:00:00Z","updatedAt":"0001-01-01T00:00:00Z","title":"","content":"","userId":0,"user":{"id":0,"createdAt":"0001-01-01T00:00:00Z","updatedAt":"0001-01-01T00:00:00Z","username":"","email":"","address":""},"comments":null}}]}}
+
+comment11 = {"id":4,"createdAt":"2026-05-11T21:32:40.16265+08:00","updatedAt":"2026-05-11T21:32:40.16265+08:00","content":"评论：新来的一个评论","userId":3,"user":{"id":0,"createdAt":"0001-01-01T00:00:00Z","updatedAt":"0001-01-01T00:00:00Z","username":"","email":"","address":""},"postId":1,"post":{"id":0,"createdAt":"0001-01-01T00:00:00Z","updatedAt":"0001-01-01T00:00:00Z","title":"","content":"","userId":0,"user":{"id":0,"createdAt":"0001-01-01T00:00:00Z","updatedAt":"0001-01-01T00:00:00Z","username":"","email":"","address":""},"comments":null}}
+comment12 = {"id":4,"createdAt":"2026-05-11T21:32:40.16265+08:00","updatedAt":"2026-05-11T21:32:40.16265+08:00","content":"评论：新来的一个评论","userId":3,"user":{"id":0,"createdAt":"0001-01-01T00:00:00Z","updatedAt":"0001-01-01T00:00:00Z","username":"","email":"","address":""},"postId":1,"post":{"id":0,"createdAt":"0001-01-01T00:00:00Z","updatedAt":"0001-01-01T00:00:00Z","title":"","content":"","userId":0,"user":{"id":0,"createdAt":"0001-01-01T00:00:00Z","updatedAt":"0001-01-01T00:00:00Z","username":"","email":"","address":""},"comments":null}}
+测试： 查单个文章。 id不存在。
+GetJson >> 
+ url = http://127.0.0.1:8080/post/query-one?post_id=333
+ 响应json = {"error":"Exception  First error : record not found ","desc":""}
+
+测试： 查全部文章。
+PostJson >> 
+ url = http://127.0.0.1:8080/post/query-list
+ 请求json = {"postId":0,"title":"","pageNo":1,"pageSize":1000}
+ 响应json = {"error":"","desc":"","posts":[{"id":1,"createdAt":"2026-05-11T21:32:36.450761+08:00","updatedAt":"2026-05-11T21:32:36.450761+08:00","title":"文章：地中海的春天","content":"内容：风景非常优美。。。。","userId":2,"user":{"id":0,"createdAt":"0001-01-01T00:00:00Z","updatedAt":"0001-01-01T00:00:00Z","username":"","email":"","address":""},"comments":null},{"id":2,"createdAt":"2026-05-11T21:32:36.450761+08:00","updatedAt":"2026-05-11T21:32:36.450761+08:00","title":"文章：迈阿密的秋天","content":"内容：海滩非常棒。。。。","userId":2,"user":{"id":0,"createdAt":"0001-01-01T00:00:00Z","updatedAt":"0001-01-01T00:00:00Z","username":"","email":"","address":""},"comments":null}]}
+
+测试： 再查单个文章。
+GetJson >> 
+ url = http://127.0.0.1:8080/post/query-one?post_id=1
+ 响应json = {"error":"","desc":"","post":{"id":1,"createdAt":"2026-05-11T21:32:36.450761+08:00","updatedAt":"2026-05-11T21:32:36.450761+08:00","title":"文章：地中海的春天","content":"内容：风景非常优美。。。。","userId":2,"user":{"id":2,"createdAt":"2026-05-11T21:32:36.450122+08:00","updatedAt":"2026-05-11T21:32:36.450122+08:00","username":"Tom","email":"tom@cc.com","address":"Chicago"},"comments":[{"id":4,"createdAt":"2026-05-11T21:32:40.16265+08:00","updatedAt":"2026-05-11T21:32:40.16265+08:00","content":"评论：新来的一个评论","userId":3,"user":{"id":0,"createdAt":"0001-01-01T00:00:00Z","updatedAt":"0001-01-01T00:00:00Z","username":"","email":"","address":""},"postId":1,"post":{"id":0,"createdAt":"0001-01-01T00:00:00Z","updatedAt":"0001-01-01T00:00:00Z","title":"","content":"","userId":0,"user":{"id":0,"createdAt":"0001-01-01T00:00:00Z","updatedAt":"0001-01-01T00:00:00Z","username":"","email":"","address":""},"comments":null}},{"id":2,"createdAt":"2026-05-11T21:32:36.451317+08:00","updatedAt":"2026-05-11T21:32:36.451317+08:00","content":"评论：去希腊晒太阳！","userId":2,"user":{"id":0,"createdAt":"0001-01-01T00:00:00Z","updatedAt":"0001-01-01T00:00:00Z","username":"","email":"","address":""},"postId":1,"post":{"id":0,"createdAt":"0001-01-01T00:00:00Z","updatedAt":"0001-01-01T00:00:00Z","title":"","content":"","userId":0,"user":{"id":0,"createdAt":"0001-01-01T00:00:00Z","updatedAt":"0001-01-01T00:00:00Z","username":"","email":"","address":""},"comments":null}}]}}
+
+PASS
+ok  	github.com/DaiXing/go_Blog/testx	0.164s

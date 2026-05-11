@@ -12,11 +12,23 @@ import (
 var userToken string
 
 func Test1(tt *testing.T) {
+
+	// 参数不合法。注册失败了。
+	var req0 blogx.PxRegisterReq
+	req0.Username = "A"
+	req0.Password = "B"
+	req0.Email = "C"
+	fmt.Println("测试： 注册失败，参数错误")
+	_, resp0 := blogx.PostJson[blogx.PxBaseResp](url_register, req0, nil)
+	if len(resp0.Error) == 0 {
+		tt.Fatal("注册错误")
+	}
+
 	// 正常注册。
 	var req1 blogx.PxRegisterReq
 	req1.Username = "Apple"
 	req1.Email = "apple@cc.com"
-	req1.Password = "98j76sw"
+	req1.Password = "98j76swPUTGTQFEW"
 
 	fmt.Println("测试： 正常注册")
 	tt.Run("正常注册", func(t *testing.T) {
